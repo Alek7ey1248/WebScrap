@@ -60,6 +60,7 @@ public class InstagramScraper {
 
                 getFoloowres(account); // смотрит количество подписчиков в аккаунте
                 getPublications(account); // смотрит количество публикаций в аккаунте
+                getSubscriptions(account); // смотрит количество подписок в аккаунте
 
             }
             // -------------------------------------------------
@@ -133,6 +134,7 @@ public class InstagramScraper {
 
         // Найдите элемент, содержащий количество публикаций
         WebElement publicationsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='html-span xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs']")));
+
         // Получите текст из элемента
         String publications = publicationsElement.getText();
 
@@ -149,13 +151,12 @@ public class InstagramScraper {
                 // создает экземпляр класса WebDriverWait, который используется для явного ожидания определенных условий в течение заданного времени. В данном случае, driver - это объект WebDriver, а Duration.ofSeconds(10) указывает, что максимальное время ожидания составляет 10 секунд. Это означает, что WebDriver будет ждать до 10 секунд, пока не выполнится указанное условие (например, элемент станет видимым на странице).
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-                // два варианта найти количество подписчиков
                 String followers;
                 // элемент, содержащий количество подписчиков
                 WebElement followersElement = null;
                 // два варианта найти количество подписчиков
                 try {
-                    // Попробуйте первый XPath локатор
+                    // Попробуйте первый XPath локатор (это для закрытых аккаунтов скорее всего)
                     followersElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@type='button']/span[@title]")));
                     followers = followersElement.getAttribute("title");
                 } catch (Exception e) {
@@ -166,6 +167,31 @@ public class InstagramScraper {
 
                 // устанавливаем количество подписчиков в аккаунте
                 account.setNumFollowers(followers);
+    }
+
+    /*
+     * Метод вспомагательный
+     * - смотрит количество подписок в аккаунте
+     */
+    private void getSubscriptions(Account account) {
+        // создает экземпляр класса WebDriverWait, который используется для явного ожидания определенных условий в течение заданного времени. В данном случае, driver - это объект WebDriver, а Duration.ofSeconds(10) указывает, что максимальное время ожидания составляет 10 секунд. Это означает, что WebDriver будет ждать до 10 секунд, пока не выполнится указанное условие (например, элемент станет видимым на странице).
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        String subscriptions;
+        WebElement subscriptionsElement = null;
+        // два варианта найти количество подписок
+        try {
+            // Попробуйте первый XPath локатор (это для закрытых аккаунтов скорее всего)
+            subscriptionsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//li[3]//span[@title]")));
+            subscriptions = subscriptionsElement.getAttribute("title");
+        } catch (Exception e) {
+            // Если первый локатор не сработал, попробуйте второй
+            subscriptionsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href, '/following')]/span")));
+            subscriptions = subscriptionsElement.getText();
+        }
+
+        // устанавливаем количество подписок в аккаунте
+        account.setNumSubscriptions(subscriptions);
     }
 
 
