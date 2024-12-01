@@ -6,7 +6,7 @@ public class Account {
     private String name; // имя
     private String numPublications; // количество публикаций
     private String numFollowers; // количество подписчиков
-    private String numSubscriptions; // количество подписок
+    private String numFoloowing; // количество подписок
 
     public String getLogin() {
         return login;
@@ -40,12 +40,12 @@ public class Account {
         this.numFollowers = numFollowers;
     }
 
-    public String getNumSubscriptions() {
-        return numSubscriptions;
+    public String getNumFoloowing() {
+        return numFoloowing;
     }
 
-    public void setNumSubscriptions(String numSubscriptions) {
-        this.numSubscriptions = numSubscriptions;
+    public void setNumFoloowing(String numFoloowing) {
+        this.numFoloowing = numFoloowing;
     }
 
     // конструктор
@@ -54,7 +54,7 @@ public class Account {
         this.name = " пока нет информации ";
         this.numPublications = " пока нет информации ";
         this.numFollowers = " пока нет информации ";
-        this.numSubscriptions = " пока нет информации ";
+        this.numFoloowing = " пока нет информации ";
     }
 
     // переопределение метода toString
@@ -65,7 +65,7 @@ public class Account {
                 "name='" + name + '\'' + ",\n" +
                 "numPublications='" + numPublications + '\'' + ",\n" +
                 "numFollowers='" + numFollowers + '\'' + ",\n" +
-                "numSubscriptions='" + numSubscriptions + '\'' + "\n" +
+                "numFoloowing='" + numFoloowing + '\'' + "\n" +
                 "--------------------------";
     }
 

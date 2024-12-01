@@ -60,7 +60,7 @@ public class InstagramScraper {
 
                 getFoloowres(account); // смотрит количество подписчиков в аккаунте
                 getPublications(account); // смотрит количество публикаций в аккаунте
-                getSubscriptions(account); // смотрит количество подписок в аккаунте
+                getFoloowing(account); // смотрит количество подписок в аккаунте
 
             }
             // -------------------------------------------------
@@ -97,7 +97,7 @@ public class InstagramScraper {
             loginButton.click();
 
             // Подождите, пока страница загрузится
-            Thread.sleep(5000); // Задержка в 5 секунд
+            Thread.sleep(3000); // Задержка в секунд
         } catch (InterruptedException e) {
             // Обработка исключения, если произошла ошибка при ожидании
             e.printStackTrace();
@@ -116,7 +116,7 @@ public class InstagramScraper {
             driver.get(pageUrl);
 
             // Подождите, пока страница загрузится
-            Thread.sleep(5000); // Задержка в 5 секунд
+            Thread.sleep(3000); // Задержка в 5 секунд
         } catch (InterruptedException e) {
             // Обработка исключения, если произошла ошибка при ожидании
             e.printStackTrace();
@@ -130,13 +130,19 @@ public class InstagramScraper {
      */
     private void getPublications(Account account) {
         // создает экземпляр класса WebDriverWait, который используется для явного ожидания определенных условий в течение заданного времени. В данном случае, driver - это объект WebDriver, а Duration.ofSeconds(10) указывает, что максимальное время ожидания составляет 10 секунд. Это означает, что WebDriver будет ждать до 10 секунд, пока не выполнится указанное условие (например, элемент станет видимым на странице).
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-        // Найдите элемент, содержащий количество публикаций
-        WebElement publicationsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='html-span xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs']")));
-
-        // Получите текст из элемента
-        String publications = publicationsElement.getText();
+        String publications;
+        try {
+            // Найдите элемент, содержащий количество публикаций
+            WebElement publicationsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='html-span xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs']")));
+            // Получите текст из элемента
+            publications = publicationsElement.getText();
+        } catch (Exception e) {
+            // Обработка случая, когда элемент не найден
+            publications = "\u001B[31mНе удалось получить\u001B[0m";
+            System.err.println("Не удалось получить количество публикаций для аккаунта: " + account.getLogin());
+        }
 
         account.setNumPublications(publications);
     }
@@ -149,7 +155,7 @@ public class InstagramScraper {
      */
     private void getFoloowres(Account account) {
                 // создает экземпляр класса WebDriverWait, который используется для явного ожидания определенных условий в течение заданного времени. В данном случае, driver - это объект WebDriver, а Duration.ofSeconds(10) указывает, что максимальное время ожидания составляет 10 секунд. Это означает, что WebDriver будет ждать до 10 секунд, пока не выполнится указанное условие (например, элемент станет видимым на странице).
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
                 String followers;
                 // элемент, содержащий количество подписчиков
@@ -160,9 +166,14 @@ public class InstagramScraper {
                     followersElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@type='button']/span[@title]")));
                     followers = followersElement.getAttribute("title");
                 } catch (Exception e) {
-                    // Если первый локатор не сработал, попробуйте второй
-                    followersElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href, '/followers')]/span/span")));
-                    followers = followersElement.getText();
+                    try {
+                        // Если первый локатор не сработал, попробуйте второй
+                        followersElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href, '/followers')]/span/span")));
+                        followers = followersElement.getText();
+                    } catch (Exception ex) {
+                        // Обработка случая, когда оба локатора не сработали
+                        followers = "\u001B[31mНе удалось получить\u001B[0m";
+                    }
                 }
 
                 // устанавливаем количество подписчиков в аккаунте
@@ -173,25 +184,30 @@ public class InstagramScraper {
      * Метод вспомагательный
      * - смотрит количество подписок в аккаунте
      */
-    private void getSubscriptions(Account account) {
+    private void getFoloowing(Account account) {
         // создает экземпляр класса WebDriverWait, который используется для явного ожидания определенных условий в течение заданного времени. В данном случае, driver - это объект WebDriver, а Duration.ofSeconds(10) указывает, что максимальное время ожидания составляет 10 секунд. Это означает, что WebDriver будет ждать до 10 секунд, пока не выполнится указанное условие (например, элемент станет видимым на странице).
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        String subscriptions;
-        WebElement subscriptionsElement = null;
-        // два варианта найти количество подписок
+        String foloowing;
+        WebElement foloowingElement = null;
         try {
-            // Попробуйте первый XPath локатор (это для закрытых аккаунтов скорее всего)
-            subscriptionsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//li[3]//span[@title]")));
-            subscriptions = subscriptionsElement.getAttribute("title");
+            // Попробуйте первый XPath локатор (для закрытых аккаунтов)
+            foloowingElement = driver.findElement(By.xpath("//li[contains(@class, 'x6s0dn4') and .//span[contains(text(), 'подписок')]]//span[@class='html-span xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs']"));
+            foloowing = foloowingElement.getAttribute("title");
         } catch (Exception e) {
-            // Если первый локатор не сработал, попробуйте второй
-            subscriptionsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href, '/following')]/span")));
-            subscriptions = subscriptionsElement.getText();
+            try {
+                // Если первый локатор не сработал, попробуйте второй
+                foloowingElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@href, '/following')]/span")));
+                foloowing = foloowingElement.getText();
+            } catch (Exception ex) {
+                // Обработка случая, когда оба локатора не сработали
+                foloowing = "\u001B[31mНе удалось получить\u001B[0m";
+                System.err.println("Не удалось получить количество подписок для аккаунта: " + account.getLogin());
+            }
         }
 
-        // устанавливаем количество подписок в аккаунте
-        account.setNumSubscriptions(subscriptions);
+        // Установите количество подписок в аккаунте
+        account.setNumFoloowing(foloowing);
     }
 
 
@@ -201,16 +217,16 @@ public class InstagramScraper {
 
     public static void main(String[] args) {
         String login1 = "alina_garakh";
-        String login2 = "chub.style";
-        String login3 = "mamay_fight_club";
-        String login4 = "starodubi";
+//        String login2 = "chub.style";
+//        String login3 = "mamay_fight_club";
+//        String login4 = "starodubi";
 
         Account account1 = new Account(login1);
-        Account account2 = new Account(login2);
-        Account account3 = new Account(login3);
-        Account account4 = new Account(login4);
+//        Account account2 = new Account(login2);
+//        Account account3 = new Account(login3);
+//        Account account4 = new Account(login4);
 
-        Account[] accounts = {account1, account2, account3, account4};
+        Account[] accounts = {account1};
 
         InstagramScraper instagramScraper = new InstagramScraper(accounts);
         instagramScraper.getAccountsInfo();
